@@ -153,6 +153,10 @@ class Game {
    this.trexAnimation.framesToChange = 3;
   }
 
+  isStopped(){
+    return this.gameOver;
+  }
+
   private addRandomPlant(){
     if(Math.random() > .3 && this.plants.length < 3){
       var index = Math.floor(Math.random() * this.plantImages.getCount());
@@ -246,10 +250,9 @@ class Game {
   private drawTRex(ctx){
     var trexY = this.mid;
     if(this.jumping){
-     trexY = trexY - Math.sin(Math.PI *this.jumpingState/30)*200;
-
+     trexY = trexY - Math.sin(Math.PI *this.jumpingState/25)*200;
      this.jumpingState = this.jumpingState + 1;
-     if(this.jumpingState > 30){
+     if(this.jumpingState > 25){
       this.jumping=false;
      }
     }
@@ -270,13 +273,20 @@ class Game {
     clearInterval(this.timerId);
   }
 
+  restart(){
+    this.gameOver = false;
+    this.plants=[];
+    this.score = 0;
+    this.play();
+  }
+
   jump(){
     if(this.jumping){
       return;
     }
 
     this.jumping=true;
-    this.jumpingState = 0;
+    this.jumpingState = 1;
   }
 
 }
@@ -285,13 +295,28 @@ var el = document.getElementById('screen');
 var game = new Game(el);
 game.play();
 
-window.addEventListener('click',event=>{
+const jumpOrResume = ()=>{
+  if(game.isStopped()){
+    game.restart();
+    return;
+  }
   game.jump();
+};
+
+
+window.addEventListener('click',event=>{
+  jumpOrResume();
   return false;
 });
+
+window.addEventListener('touchstart',event=>{
+  jumpOrResume();
+  return false;
+});
+
 window.addEventListener('keypress',event=>{
   if(event.key === " "){
-    game.jump();
+    jumpOrResume();
     return false;
   }
 });

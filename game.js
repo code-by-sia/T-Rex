@@ -141,6 +141,9 @@ var Game = (function () {
         this.plantImages.anchor = DrawAnchor.BottomLeft;
         this.trexAnimation.framesToChange = 3;
     };
+    Game.prototype.isStopped = function () {
+        return this.gameOver;
+    };
     Game.prototype.addRandomPlant = function () {
         if (Math.random() > .3 && this.plants.length < 3) {
             var index = Math.floor(Math.random() * this.plantImages.getCount());
@@ -216,9 +219,9 @@ var Game = (function () {
     Game.prototype.drawTRex = function (ctx) {
         var trexY = this.mid;
         if (this.jumping) {
-            trexY = trexY - Math.sin(Math.PI * this.jumpingState / 30) * 200;
+            trexY = trexY - Math.sin(Math.PI * this.jumpingState / 25) * 200;
             this.jumpingState = this.jumpingState + 1;
-            if (this.jumpingState > 30) {
+            if (this.jumpingState > 25) {
                 this.jumping = false;
             }
         }
@@ -234,25 +237,42 @@ var Game = (function () {
     Game.prototype.stop = function () {
         clearInterval(this.timerId);
     };
+    Game.prototype.restart = function () {
+        this.gameOver = false;
+        this.plants = [];
+        this.score = 0;
+        this.play();
+    };
     Game.prototype.jump = function () {
         if (this.jumping) {
             return;
         }
         this.jumping = true;
-        this.jumpingState = 0;
+        this.jumpingState = 1;
     };
     return Game;
 }());
 var el = document.getElementById('screen');
 var game = new Game(el);
 game.play();
-window.addEventListener('click', function (event) {
+var jumpOrResume = function () {
+    if (game.isStopped()) {
+        game.restart();
+        return;
+    }
     game.jump();
+};
+window.addEventListener('click', function (event) {
+    jumpOrResume();
+    return false;
+});
+window.addEventListener('touchstart', function (event) {
+    jumpOrResume();
     return false;
 });
 window.addEventListener('keypress', function (event) {
     if (event.key === " ") {
-        game.jump();
+        jumpOrResume();
         return false;
     }
 });
