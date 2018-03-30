@@ -1,13 +1,8 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 var DrawAnchor;
 (function (DrawAnchor) {
     DrawAnchor[DrawAnchor["TopLeft"] = 0] = "TopLeft";
@@ -24,7 +19,7 @@ var ImageCollection = (function () {
     function ImageCollection() {
         var images = [];
         for (var _i = 0; _i < arguments.length; _i++) {
-            images[_i] = arguments[_i];
+            images[_i - 0] = arguments[_i];
         }
         this.imgs = [];
         this.anchor = DrawAnchor.TopLeft;
@@ -72,29 +67,30 @@ var ImageCollection = (function () {
         }
     };
     return ImageCollection;
-}());
+})();
 var AnimatedImage = (function (_super) {
     __extends(AnimatedImage, _super);
-    function AnimatedImage() {
+    function AnimatedImage(framerate) {
+        if (framerate === void 0) { framerate = 30; }
         var images = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            images[_i] = arguments[_i];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            images[_i - 1] = arguments[_i];
         }
-        var _this = _super.apply(this, images) || this;
-        _this.frame = 0;
-        _this.current = 0;
-        _this.framesToChange = 1;
-        return _this;
+        _super.apply(this, images);
+        this.framerate = framerate;
+        this.frame = 0;
+        this.current = 0;
+        this.framesToChange = 1;
     }
     AnimatedImage.prototype.reset = function () {
         this.frame = 0;
     };
     AnimatedImage.prototype.draw = function (ctx, x, y) {
         _super.prototype.draw.call(this, ctx, this.current, x, y);
-        if (this.frame % this.framesToChange == 0) {
+        this.frame = this.frame + 1;
+        if (this.frame % this.framerate == 0) {
             this.current = (1 + this.current) % _super.prototype.getCount.call(this);
         }
-        this.frame = this.frame + 1;
     };
     AnimatedImage.prototype.getCurrentHeight = function () {
         return _super.prototype.getHeight.call(this, this.current);
@@ -103,7 +99,7 @@ var AnimatedImage = (function (_super) {
         return _super.prototype.getWidth.call(this, this.current);
     };
     return AnimatedImage;
-}(ImageCollection));
+})(ImageCollection);
 var Plant = (function () {
     function Plant(index) {
         this.index = index;
@@ -112,7 +108,7 @@ var Plant = (function () {
         this.width = 0;
     }
     return Plant;
-}());
+})();
 var Game = (function () {
     function Game(container) {
         this.container = container;
@@ -135,14 +131,11 @@ var Game = (function () {
         this.width = this.canvas.width = this.container.clientWidth;
         this.height = this.canvas.height = this.container.clientHeight;
         this.mid = this.height / 2;
-        this.trexAnimation = new AnimatedImage('img/1.png', 'img/2.png', 'img/3.png', 'img/4.png', 'img/5.png');
+        this.trexAnimation = new AnimatedImage(30, 'img/1.png', 'img/2.png', 'img/3.png', 'img/4.png', 'img/5.png');
         this.trexAnimation.anchor = DrawAnchor.BottomLeft;
         this.plantImages = new ImageCollection('img/plant-1.png', 'img/plant-2.png', 'img/plant-3.png', 'img/plant-4.png');
         this.plantImages.anchor = DrawAnchor.BottomLeft;
         this.trexAnimation.framesToChange = 3;
-    };
-    Game.prototype.isStopped = function () {
-        return this.gameOver;
     };
     Game.prototype.addRandomPlant = function () {
         if (Math.random() > .3 && this.plants.length < 3) {
@@ -155,12 +148,13 @@ var Game = (function () {
         }
     };
     Game.prototype.nextFrame = function () {
-        this.frame = 1 + this.frame % 100;
-        if (this.frame % 50 == 0) {
+        var _this = this;
+        this.frame = 1 + this.frame % 1000;
+        if (this.frame % 400 == 0) {
             this.addRandomPlant();
         }
         this.score += 1;
-        this.render();
+        requestAnimationFrame(function () { return _this.render(); });
     };
     Game.prototype.clearCanvas = function () {
         this.canvas.width = this.canvas.width;
@@ -181,7 +175,7 @@ var Game = (function () {
     };
     Game.prototype.drawScore = function (ctx) {
         ctx.font = '20px Arial';
-        ctx.fillText("Score: " + this.score, 50, 50);
+        ctx.fillText("Score: " + Math.ceil(this.score / 10), 50, 50);
     };
     Game.prototype.isHitted = function (plant) {
         var delta = 20;
@@ -205,7 +199,7 @@ var Game = (function () {
         var y = this.mid;
         for (var i = 0; i < this.plants.length; i++) {
             var plant = this.plants[i];
-            plant.position -= 10 + (this.score / 100);
+            plant.position -= (this.score / 1000);
             this.plantImages.draw(ctx, plant.index, plant.position, y);
             if (this.isHitted(plant)) {
                 this.gameOver = true;
@@ -219,9 +213,9 @@ var Game = (function () {
     Game.prototype.drawTRex = function (ctx) {
         var trexY = this.mid;
         if (this.jumping) {
-            trexY = trexY - Math.sin(Math.PI * this.jumpingState / 25) * 200;
-            this.jumpingState = this.jumpingState + 1;
-            if (this.jumpingState > 25) {
+            trexY = trexY - Math.sin(Math.PI * this.jumpingState / 30) * 200;
+            this.jumpingState = this.jumpingState + 0.147;
+            if (this.jumpingState > 30) {
                 this.jumping = false;
             }
         }
@@ -232,47 +226,30 @@ var Game = (function () {
     };
     Game.prototype.play = function () {
         var _this = this;
-        this.timerId = setInterval(function (_) { return _this.nextFrame(); }, 50);
+        this.timerId = setInterval(function (_) { return _this.nextFrame(); }, 5);
     };
     Game.prototype.stop = function () {
         clearInterval(this.timerId);
-    };
-    Game.prototype.restart = function () {
-        this.gameOver = false;
-        this.plants = [];
-        this.score = 0;
-        this.play();
     };
     Game.prototype.jump = function () {
         if (this.jumping) {
             return;
         }
         this.jumping = true;
-        this.jumpingState = 1;
+        this.jumpingState = 0;
     };
     return Game;
-}());
+})();
 var el = document.getElementById('screen');
 var game = new Game(el);
 game.play();
-var jumpOrResume = function () {
-    if (game.isStopped()) {
-        game.restart();
-        return;
-    }
-    game.jump();
-};
 window.addEventListener('click', function (event) {
-    jumpOrResume();
-    return false;
-});
-window.addEventListener('touchstart', function (event) {
-    jumpOrResume();
+    game.jump();
     return false;
 });
 window.addEventListener('keypress', function (event) {
     if (event.key === " ") {
-        jumpOrResume();
+        game.jump();
         return false;
     }
 });

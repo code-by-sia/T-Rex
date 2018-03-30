@@ -65,7 +65,7 @@ class AnimatedImage extends ImageCollection{
   private current=0;
   public framesToChange=1;
 
-  constructor(...images){
+  constructor(private framerate=30 , ...images){
     super(...images);
   }
 
@@ -75,10 +75,14 @@ class AnimatedImage extends ImageCollection{
 
   draw(ctx,x,y){
     super.draw(ctx,this.current,x,y);
-    if(this.frame % this.framesToChange == 0){
+    this.frame = this.frame + 1 ;
+    
+    if(this.frame % this.framerate == 0){
       this.current =(1+ this.current) % super.getCount();
     }
-    this.frame = this.frame + 1 ;
+
+    
+    
   }
 
   getCurrentHeight(){
@@ -90,7 +94,6 @@ class AnimatedImage extends ImageCollection{
   }
 
 }
-
 
 class Plant {
   public position=0;
@@ -134,11 +137,12 @@ class Game {
    this.mid = this.height / 2;
 
    this.trexAnimation = new AnimatedImage(
+     30,
     'img/1.png',
     'img/2.png',
     'img/3.png',
     'img/4.png',
-    'img/5.png',
+    'img/5.png'
    );
    this.trexAnimation.anchor=DrawAnchor.BottomLeft;
 
@@ -146,15 +150,11 @@ class Game {
     'img/plant-1.png',
     'img/plant-2.png',
     'img/plant-3.png',
-    'img/plant-4.png',
+    'img/plant-4.png'
    );
    this.plantImages.anchor=DrawAnchor.BottomLeft;
 
    this.trexAnimation.framesToChange = 3;
-  }
-
-  isStopped(){
-    return this.gameOver;
   }
 
   private addRandomPlant(){
@@ -169,12 +169,13 @@ class Game {
   }
 
   private nextFrame(){
-    this.frame= 1+this.frame % 100;
-    if(this.frame % 50==0){
+    this.frame= 1+this.frame % 1000;
+    if(this.frame % 400==0){
       this.addRandomPlant();
     }
     this.score+=1;
-    this.render();
+
+    requestAnimationFrame(()=> this.render()); 
   }
 
   private clearCanvas(){
@@ -200,7 +201,7 @@ class Game {
 
   private drawScore(ctx){
     ctx.font='20px Arial';
-    ctx.fillText(`Score: ${this.score}`,50,50);
+    ctx.fillText(`Score: ${Math.ceil(this.score/10)}`,50,50);
   }
 
 
@@ -232,7 +233,8 @@ class Game {
     var y= this.mid;
     for(var i=0;i<this.plants.length;i++){
       var plant = this.plants[i];
-      plant.position -= 10 + (this.score/100);
+      plant.position -= (this.score/1000);
+      
       this.plantImages.draw(ctx,plant.index,plant.position,y);
 
       if(this.isHitted(plant))
@@ -250,9 +252,9 @@ class Game {
   private drawTRex(ctx){
     var trexY = this.mid;
     if(this.jumping){
-     trexY = trexY - Math.sin(Math.PI *this.jumpingState/25)*200;
-     this.jumpingState = this.jumpingState + 1;
-     if(this.jumpingState > 25){
+     trexY = trexY - Math.sin(Math.PI *this.jumpingState/30)*200;
+     this.jumpingState = this.jumpingState + 0.147;
+     if(this.jumpingState > 30){
       this.jumping=false;
      }
     }
@@ -261,23 +263,17 @@ class Game {
     this.tRexLeft = 100;
 
     ctx.strokeRect(0,this.mid,this.width,1);
+    
     this.trexAnimation.draw(ctx,this.tRexLeft,this.tRexTop);
 
   }
 
   play(){
-    this.timerId= setInterval(_=>this.nextFrame(),50);
+    this.timerId= setInterval(_=>this.nextFrame(),5);
   }
 
   stop(){
     clearInterval(this.timerId);
-  }
-
-  restart(){
-    this.gameOver = false;
-    this.plants=[];
-    this.score = 0;
-    this.play();
   }
 
   jump(){
@@ -286,7 +282,7 @@ class Game {
     }
 
     this.jumping=true;
-    this.jumpingState = 1;
+    this.jumpingState = 0;
   }
 
 }
@@ -295,28 +291,13 @@ var el = document.getElementById('screen');
 var game = new Game(el);
 game.play();
 
-const jumpOrResume = ()=>{
-  if(game.isStopped()){
-    game.restart();
-    return;
-  }
-  game.jump();
-};
-
-
 window.addEventListener('click',event=>{
-  jumpOrResume();
+  game.jump();
   return false;
 });
-
-window.addEventListener('touchstart',event=>{
-  jumpOrResume();
-  return false;
-});
-
 window.addEventListener('keypress',event=>{
   if(event.key === " "){
-    jumpOrResume();
+    game.jump();
     return false;
   }
 });
