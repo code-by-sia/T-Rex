@@ -1,23 +1,39 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <title>T-Rex Game</title>
 
-    <style>
-    body , * {padding: 0;margin:0}
+<head>
+  <meta charset="utf-8">
+  <title>T-Rex Game</title>
+
+  <style>
+    body,
+    * {
+      padding: 0;
+      margin: 0
+    }
+
     #screen {
       position: absolute;
       left: 0;
       right: 0;
-      top:0;
+      top: 30px;
       bottom: 0;
     }
-    </style>
-  </head>
-  <body>
-    <div id="screen">
-    </div>
-    <script src="game.js?v2" ></script>
-  </body>
+
+    a {
+      float: right;
+      z-index: 10000000;
+      padding: 5px
+    }
+  </style>
+</head>
+
+<body>
+  <a href="physics.html"> click here to see a minimal physics simulation </a>
+
+  <div id="screen">
+  </div>
+  <script src="game.js?v2"></script>
+</body>
+
 </html>

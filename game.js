@@ -129,7 +129,7 @@ var Game = (function () {
         this.canvas = document.createElement('canvas');
         this.container.appendChild(this.canvas);
         this.width = this.canvas.width = this.container.clientWidth;
-        this.height = this.canvas.height = this.container.clientHeight;
+        this.height = this.canvas.height = this.container.clientHeight - 30;
         this.mid = this.height / 2;
         this.trexAnimation = new AnimatedImage(30, 'img/1.png', 'img/2.png', 'img/3.png', 'img/4.png', 'img/5.png');
         this.trexAnimation.anchor = DrawAnchor.BottomLeft;
@@ -245,7 +245,7 @@ var game = new Game(el);
 game.play();
 window.addEventListener('click', function (event) {
     game.jump();
-    return false;
+    // return false;
 });
 window.addEventListener('keypress', function (event) {
     if (event.key === " ") {

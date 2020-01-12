@@ -48,6 +48,7 @@ var __extends = (this && this.__extends) || function (d, b) {
             var px = g.transform3D(x, y, z);
             g.stroke(this.color, 2);
             g.drawCircle(px.x, px.y, g.scale3D(z) * this.radius);
+            _super.prototype.draw.call(this, g);
         };
         Sphare.prototype.getCollisionPoint = function (p) {
             // p.distanceTo(this);

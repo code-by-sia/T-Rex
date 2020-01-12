@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8">
-  <title>T-Rex Game</title>
+  <title>Simulation</title>
 
   <style>
     body,
@@ -12,20 +12,25 @@
       margin: 0
     }
 
-    #screen {
+    #canvas {
+      border: solid thin red;
+      margin: 45px auto 0 auto;
+      display: block;
+    }
+
+    #randomAction {
       position: absolute;
-      left: 0;
-      right: 0;
-      top: 0;
-      bottom: 0;
+      top: 10px;
+      left: 10px;
     }
   </style>
+  <script src="require.js" data-main="PhysicsTest"></script>
+
 </head>
 
 <body>
-  <div id="screen">
-  </div>
-  <script src="require.js" data-main="PhysicsTest"></script>
+  <canvas id="canvas"></canvas>
+  <button id="randomAction">add random velocity to the blue shpare</button>
 </body>
 
 </html>

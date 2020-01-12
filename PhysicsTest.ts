@@ -1,25 +1,17 @@
 import { Graphics } from "./Graphics";
 import Environemnt from "./physics/Environemnt";
-import Mesh from "./physics/Mesh";
-import Particle from "./physics/Particle";
-import Point3D from "./mathematics/Point3D";
-import Stick from "./physics/Stick";
-import { Thing } from "./physics/Shapes/Thing";
 import { Fabric } from "./physics/Shapes/Fabric";
 import { Sphare } from "./physics/Shapes/Sphare";
-import { Box } from "./physics/Shapes/Box";
 import Vector3D from "./mathematics/Vector3D";
-import Velocity from "./physics/Velocity";
 
-let mesh1;
-let mesh2;
+
+let blueSpare: Sphare = new Sphare(-200, 50, 190, 70, false);
 
 class Game {
 
     private canvas;
     private width;
     private height;
-    private mid;
     public playing;
     private env: Environemnt;
 
@@ -29,16 +21,12 @@ class Game {
     }
 
     private init() {
-        this.canvas = document.createElement('canvas');
-        this.container.appendChild(this.canvas);
-        this.width = this.canvas.width = this.container.clientWidth;
-        this.height = this.canvas.height = this.container.clientHeight;
-        this.mid = this.height / 2;
+        this.canvas = document.getElementById('canvas');
+        this.width = this.canvas.width = window.innerWidth - 15;
+        this.height = this.canvas.height = window.innerHeight - 50;
         this.env = new Environemnt(this.width, this.height)
 
 
-        let r = 45;
-        let c = 30;
         // const f = new Fabric(-100, -150, 200, 20, c, r)
         const f = new Fabric(-250, -150, -250, 600, 600, 20);
         f.particles[0].locked = true;
@@ -53,11 +41,11 @@ class Game {
         // f.particles[r * c - c].add(new Point3D(0, 100, 50))
 
 
-        let c1, c2, c3, c4, c5, c6;
+        let c1, c2, c3, c4;
         this.env.add(c1 = new Sphare(0, -100, 0, 5));
-        this.env.add(c2 = new Sphare(-200, 50, 190, 70, false));
-        this.env.add(c3 = new Sphare(200, 70, -50, 50, false));
-        this.env.add(c4 = new Sphare(200, 100, 0, 50, false));
+        this.env.add(c2 = blueSpare);
+        this.env.add(c3 = new Sphare(200, 170, -50, 50, false));
+        this.env.add(c4 = new Sphare(50, 100, 80, 50, false));
         // this.env.add(c5 = new Sphare(200, -20, 10, 50, false));
         // this.env.add(c6 = new Sphare(200, -100, -200, 50, false));
         // this.env.shapes.push(new Sphare(0, 200, 0, 10, false));
@@ -68,6 +56,8 @@ class Game {
         c1.link(c2);
         c1.link(c3);
         c1.link(c4);
+
+        blueSpare = c2;
         // c1.link(c5);
 
         // this.env.add(new Box(-300, 160, 50, 60, 10, 60));
@@ -98,16 +88,6 @@ class Game {
 
     }
 
-    private dots(graphics: Graphics, z = 0) {
-        graphics.fill('blue');
-        graphics.fillCircle3D(-100, -100, z);
-        graphics.fill('red');
-        graphics.fillCircle3D(100, -100, z);
-        graphics.fill('black');
-        graphics.fillCircle3D(-100, 100, z);
-        graphics.fill('green');
-        graphics.fillCircle3D(100, 100, z);
-    }
 
     play() {
         this.playing = true
@@ -129,7 +109,7 @@ class Game {
 
 var el = document.getElementById('screen');
 var game = new Game(el);
-
+game.play();
 window.addEventListener('keypress', event => {
     if (event.key === " ") {
         game.playing = !game.playing;
@@ -137,3 +117,9 @@ window.addEventListener('keypress', event => {
         return false;
     }
 });
+
+
+document.getElementById("randomAction").addEventListener('click', () => {
+    let randomForce = new Vector3D(Math.random() * 10 - 5, Math.random() * 10 - 5, Math.random() * 10 - 5)
+    blueSpare.accelerate(randomForce);
+})

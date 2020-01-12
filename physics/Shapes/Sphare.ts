@@ -31,6 +31,8 @@ export class Sphare extends Thing {
             px.y,
             g.scale3D(z) * this.radius
         );
+
+        super.draw(g)
     }
 
 

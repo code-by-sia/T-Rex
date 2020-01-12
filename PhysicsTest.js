@@ -5,13 +5,13 @@
     else if (typeof define === 'function' && define.amd) {
         define(deps, factory);
     }
-})(["require", "exports", "./Graphics", "./physics/Environemnt", "./physics/Shapes/Fabric", "./physics/Shapes/Sphare"], function (require, exports) {
+})(["require", "exports", "./Graphics", "./physics/Environemnt", "./physics/Shapes/Fabric", "./physics/Shapes/Sphare", "./mathematics/Vector3D"], function (require, exports) {
     var Graphics_1 = require("./Graphics");
     var Environemnt_1 = require("./physics/Environemnt");
     var Fabric_1 = require("./physics/Shapes/Fabric");
     var Sphare_1 = require("./physics/Shapes/Sphare");
-    var mesh1;
-    var mesh2;
+    var Vector3D_1 = require("./mathematics/Vector3D");
+    var blueSpare = new Sphare_1.Sphare(-200, 50, 190, 70, false);
     var Game = (function () {
         function Game(container) {
             this.container = container;
@@ -19,14 +19,10 @@
             this.render();
         }
         Game.prototype.init = function () {
-            this.canvas = document.createElement('canvas');
-            this.container.appendChild(this.canvas);
-            this.width = this.canvas.width = this.container.clientWidth;
-            this.height = this.canvas.height = this.container.clientHeight;
-            this.mid = this.height / 2;
+            this.canvas = document.getElementById('canvas');
+            this.width = this.canvas.width = window.innerWidth - 15;
+            this.height = this.canvas.height = window.innerHeight - 50;
             this.env = new Environemnt_1.default(this.width, this.height);
-            var r = 45;
-            var c = 30;
             // const f = new Fabric(-100, -150, 200, 20, c, r)
             var f = new Fabric_1.Fabric(-250, -150, -250, 600, 600, 20);
             f.particles[0].locked = true;
@@ -38,11 +34,11 @@
             // f.particles[r * c - 1].locked = true;
             // f.particles[r * c - c].locked = true
             // f.particles[r * c - c].add(new Point3D(0, 100, 50))
-            var c1, c2, c3, c4, c5, c6;
+            var c1, c2, c3, c4;
             this.env.add(c1 = new Sphare_1.Sphare(0, -100, 0, 5));
-            this.env.add(c2 = new Sphare_1.Sphare(-200, 50, 190, 70, false));
-            this.env.add(c3 = new Sphare_1.Sphare(200, 70, -50, 50, false));
-            this.env.add(c4 = new Sphare_1.Sphare(200, 100, 0, 50, false));
+            this.env.add(c2 = blueSpare);
+            this.env.add(c3 = new Sphare_1.Sphare(200, 170, -50, 50, false));
+            this.env.add(c4 = new Sphare_1.Sphare(50, 100, 80, 50, false));
             // this.env.add(c5 = new Sphare(200, -20, 10, 50, false));
             // this.env.add(c6 = new Sphare(200, -100, -200, 50, false));
             // this.env.shapes.push(new Sphare(0, 200, 0, 10, false));
@@ -51,6 +47,7 @@
             c1.link(c2);
             c1.link(c3);
             c1.link(c4);
+            blueSpare = c2;
             // c1.link(c5);
             // this.env.add(new Box(-300, 160, 50, 60, 10, 60));
             // this.env.add(new Box(-300, 280, 50, 60, 10, 60));
@@ -73,17 +70,6 @@
                 }, 5);
             }
         };
-        Game.prototype.dots = function (graphics, z) {
-            if (z === void 0) { z = 0; }
-            graphics.fill('blue');
-            graphics.fillCircle3D(-100, -100, z);
-            graphics.fill('red');
-            graphics.fillCircle3D(100, -100, z);
-            graphics.fill('black');
-            graphics.fillCircle3D(-100, 100, z);
-            graphics.fill('green');
-            graphics.fillCircle3D(100, 100, z);
-        };
         Game.prototype.play = function () {
             this.playing = true;
             this.render();
@@ -98,6 +84,7 @@
     })();
     var el = document.getElementById('screen');
     var game = new Game(el);
+    game.play();
     window.addEventListener('keypress', function (event) {
         if (event.key === " ") {
             game.playing = !game.playing;
@@ -105,5 +92,9 @@
                 game.play();
             return false;
         }
+    });
+    document.getElementById("randomAction").addEventListener('click', function () {
+        var randomForce = new Vector3D_1.default(Math.random() * 10 - 5, Math.random() * 10 - 5, Math.random() * 10 - 5);
+        blueSpare.accelerate(randomForce);
     });
 });
