@@ -37,7 +37,7 @@
         Graphics.prototype.drawCircle = function (x, y, r) {
             this.context.save();
             this.context.beginPath();
-            this.context.ellipse(x, y, r, r, 0, 0, Math.PI * 2);
+            this.context.arc(x, y, r, 0, Math.PI * 2);
             this.context.closePath();
             this.context.stroke();
             this.context.restore();
